@@ -1,0 +1,117 @@
+import random
+
+
+from domain.anxiety import AnxietySystem
+from domain.report import ReportSystem
+from domain.work import WorkTask
+from settings import (
+    ANXIETY_MAX,
+    ANXIETY_PASSIVE_GAIN_PER_SEC,
+    ANXIETY_RELIEF_PER_SEC,
+    DAY_END_HOUR,
+    DAY_SPEED_MINUTES_PER_SEC,
+    DAY_START_HOUR,
+    WORK_SLOT_COUNT,
+)
+
+
+class OfficeState:
+    def __init__(self) -> None:
+        """Initialize the full office gameplay state for one day."""
+        self.selected_monitor = "center"
+
+        self.anxiety_system = AnxietySystem(
+            ANXIETY_MAX,
+            ANXIETY_PASSIVE_GAIN_PER_SEC,
+            ANXIETY_RELIEF_PER_SEC,
+        )
+        self.task = WorkTask(hold_time=self.generate_random_task_hold_time())
+        self.report_system = ReportSystem()
+
+        self.day_time_minutes = DAY_START_HOUR * 60
+        self.day_end_minutes = DAY_END_HOUR * 60
+
+        self.work_slots = ["empty"] * WORK_SLOT_COUNT
+        self.current_task_slot_index = None
+
+        self.overtime_active = False
+        self.overtime_end_minutes = (DAY_END_HOUR + 1) * 60
+
+    def set_monitor(self, monitor: str) -> None:
+        """Set the currently active monitor."""
+        self.selected_monitor = monitor
+
+    def update(self, dt: float, is_holding_work_button: bool) -> None:
+        """Update office time, anxiety, and the current work task."""
+        self.day_time_minutes += dt * DAY_SPEED_MINUTES_PER_SEC
+
+        is_relaxing = self.selected_monitor == "right"
+        self.anxiety_system.update(dt, is_relaxing)
+        self.task.update(dt, is_holding_work_button)
+
+        if self.task.is_failed and self.report_system.pending_reports <= 0:
+            self.report_system.add_report()
+
+        if not self.overtime_active and self.day_time_minutes >= self.day_end_minutes:
+            if not self.is_win_condition_met():
+                self.overtime_active = True
+
+        max_time = self.overtime_end_minutes if self.overtime_active else self.day_end_minutes
+        if self.day_time_minutes > max_time:
+            self.day_time_minutes = max_time
+
+    def generate_random_task_hold_time(self) -> float:
+        """Return a random duration for the next work task."""
+        return random.uniform(5, 15)
+
+    def get_time_string(self) -> str:
+        """Return the current in-game time as HH:MM."""
+        total_minutes = int(self.day_time_minutes)
+        hours = total_minutes // 60
+        minutes = total_minutes % 60
+        return f"{hours:02d}:{minutes:02d}"
+
+    def finish_and_spawn_next_task(self) -> None:
+        """Reset the current task so a new task can be started."""
+        self.task.reset(hold_time=self.generate_random_task_hold_time())
+        self.current_task_slot_index = None
+
+    def are_all_task_slots_closed(self) -> bool:
+        """Return True when every task slot is either correct or error."""
+        for slot in self.work_slots:
+            if slot not in ("correct", "error"):
+                return False
+        return True
+
+    def has_unresolved_reports(self) -> bool:
+        """Return True when there are reports still waiting to be sent."""
+        return self.report_system.pending_reports > 0 or self.report_system.is_writing
+
+    def is_win_condition_met(self) -> bool:
+        """Return True when all task slots are closed and no report is pending."""
+        return self.are_all_task_slots_closed() and not self.has_unresolved_reports()
+
+    def is_game_over(self) -> bool:
+        """Return True when the anxiety game-over condition is reached."""
+        return self.anxiety_system.is_maxed()
+
+    def is_day_finished(self) -> bool:
+        """Return True when normal day time has reached its end."""
+        return self.day_time_minutes >= self.day_end_minutes
+
+    def is_overtime_finished(self) -> bool:
+        """Return True when overtime has fully expired."""
+        return self.overtime_active and self.day_time_minutes >= self.overtime_end_minutes
+
+    def should_lose_from_time(self) -> bool:
+        """Return True when time has expired and tasks or reports are still unresolved."""
+        if not self.is_overtime_finished():
+            return False
+
+        if not self.are_all_task_slots_closed():
+            return True
+
+        if self.has_unresolved_reports():
+            return True
+
+        return False

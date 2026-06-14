@@ -34,7 +34,7 @@ class GameOverScene(SceneBase):
         screen.blit(title, title_rect)
 
         if self.reason == "anxiety":
-            reason_label = "Anxiety reached maximum"
+            reason_label = "You're too excited."
         else:
             reason_label = f"{self.reason}"
 

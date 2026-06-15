@@ -5,30 +5,77 @@ from settings import HEIGHT, TEXT_COLOR, WIDTH
 
 
 class MenuScene(SceneBase):
-    def handle_event(self, event) -> None:
-        """Start a new day session after any key press."""
-        if event.type != pygame.KEYDOWN:
-            return
+    def __init__(self, game):
+        self.game = game
+        self.selected = -1
 
-        from domain.day_session import DaySession
-        from ui.scenes.office_scene import OfficeScene
+        self.buttons = ["New Game", "Continue", "Settings", "Quit"]
+        self.rects = []
 
-        self.game.session = DaySession()
-        self.game.change_scene(OfficeScene(self.game))
+        button_weight = 320
+        button_height = 60
+        gap = 20
 
-    def update(self, dt: float) -> None:
-        """Update the menu scene state."""
+        for i in range(len(self.buttons)):
+            rect = pygame.Rect(WIDTH // 12 , HEIGHT // 1.8 + i * (button_height + gap), button_weight, button_height)
+            self.rects.append(rect)
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEMOTION:
+            self.selected = -1
+            for i, rect in enumerate(self.rects):
+                if rect.collidepoint(event.pos):
+                    self.selected = i
+                    break
+
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            for i, rect in enumerate(self.rects):
+                if rect.collidepoint(event.pos):
+                    name = self.buttons[i]
+
+                    if name == "New Game":
+                        from domain.day_session import DaySession
+                        from ui.scenes.office_scene import OfficeScene
+
+                        self.game.session = DaySession()
+                        self.game.change_scene(OfficeScene(self.game))
+
+                    elif name == "Continue":
+                        pass
+
+                    elif name == "Settings":
+                       pass
+
+                    elif name == "Quit":
+                        self.game.quit()
+
+    def update(self, dt):
         pass
 
-    def draw(self, screen) -> None:
-        """Draw the main menu screen."""
+    def draw(self, screen):
         screen.fill((10, 10, 10))
 
         title = self.game.big_font.render("SDaGE", True, TEXT_COLOR)
-        hint = self.game.font.render("Press any key to start", True, TEXT_COLOR)
+        screen.blit(title, title.get_rect(center=(WIDTH // 7 - 30, HEIGHT // 3)))
 
-        title_rect = title.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 80))
-        hint_rect = hint.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+        for i, rect in enumerate(self.rects):
+            if i == self.selected:
+                bg = (210, 210, 210)
+                border = (255, 255, 255)
+                color = (15, 15, 15)
+            else:
+                bg = (30, 30, 30)
+                border = (90, 90, 90)
+                color = TEXT_COLOR
 
-        screen.blit(title, title_rect)
-        screen.blit(hint, hint_rect)
+            if self.buttons[i] == "Continue":
+                bg = (45, 45, 45)
+                border = (70, 70, 70)
+                color = (120, 120, 120)
+
+            pygame.draw.rect(screen, bg, rect, border_radius=10)
+            pygame.draw.rect(screen, border, rect, 2, border_radius=10)
+
+            text = self.game.font.render(self.buttons[i], True, color)
+            screen.blit(text, text.get_rect(center=rect.center))
+

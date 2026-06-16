@@ -1,12 +1,12 @@
-from settings import ANXIETY_MAX
+from settings import ANXIETY_MAX, ANXIETY_PASSIVE_GAIN_PER_SEC, ANXIETY_RELIEF_PER_SEC
 
 
 class AnxietySystem:
     def __init__(
         self,
         max_value: float = ANXIETY_MAX,
-        passive_gain_per_sec: float = 3.0,
-        relief_per_sec: float = 12.0,
+        passive_gain_per_sec: float = ANXIETY_PASSIVE_GAIN_PER_SEC,
+        relief_per_sec: float = ANXIETY_RELIEF_PER_SEC,
     ) -> None:
         """Initialize the anxiety system values and rates."""
         self.max_value = max_value

@@ -6,8 +6,6 @@ from domain.report import ReportSystem
 from domain.work import WorkTask
 from settings import (
     ANXIETY_MAX,
-    ANXIETY_PASSIVE_GAIN_PER_SEC,
-    ANXIETY_RELIEF_PER_SEC,
     DAY_END_HOUR,
     DAY_SPEED_MINUTES_PER_SEC,
     DAY_START_HOUR,
@@ -16,16 +14,21 @@ from settings import (
 
 
 class OfficeState:
-    def __init__(self) -> None:
+    def __init__(self, day_config) -> None:
         """Initialize the full office gameplay state for one day."""
         self.selected_monitor = "center"
 
+        self.day_config = day_config
+
         self.anxiety_system = AnxietySystem(
             ANXIETY_MAX,
-            ANXIETY_PASSIVE_GAIN_PER_SEC,
-            ANXIETY_RELIEF_PER_SEC,
+            self.day_config["ANXIETY_PASSIVE_GAIN_PER_SEC"],
+            self.day_config["ANXIETY_RELIEF_PER_SEC"]
         )
-        self.task = WorkTask(hold_time=self.generate_random_task_hold_time())
+        self.task = WorkTask(
+            hold_time=self.generate_random_task_hold_time(),
+            fail_chance=self.day_config["TASK_FAIL_CHANCE"],
+        )
         self.report_system = ReportSystem()
 
         self.day_time_minutes = DAY_START_HOUR * 60
@@ -73,7 +76,10 @@ class OfficeState:
 
     def finish_and_spawn_next_task(self) -> None:
         """Reset the current task so a new task can be started."""
-        self.task.reset(hold_time=self.generate_random_task_hold_time())
+        self.task = WorkTask(
+            hold_time=self.generate_random_task_hold_time(),
+            fail_chance=self.day_config["TASK_FAIL_CHANCE"],
+        )
         self.current_task_slot_index = None
 
     def are_all_task_slots_closed(self) -> bool:

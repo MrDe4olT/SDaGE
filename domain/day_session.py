@@ -1,10 +1,14 @@
 from domain.office_state import OfficeState
 
 
+from domain.office_state import OfficeState
+
+
 class DaySession:
-    def __init__(self) -> None:
-        """Initialize a single workday session."""
-        self.office = OfficeState()
+    def __init__(self, day, day_config) -> None:
+        self.day = day
+        self.day_config = day_config
+        self.office = OfficeState(day_config)
         self.finished = False
         self.result = None
 

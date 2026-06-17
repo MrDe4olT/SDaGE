@@ -1,7 +1,7 @@
 import pygame
 
 from core.gamestate import SceneBase
-from settings import HEIGHT, TEXT_COLOR, WIDTH
+from settings import HEIGHT, TEXT_COLOR, WIDTH, BG_COLOR
 
 
 class MenuScene(SceneBase):
@@ -37,11 +37,22 @@ class MenuScene(SceneBase):
                         from domain.day_session import DaySession
                         from ui.scenes.office_scene import OfficeScene
 
-                        self.game.session = DaySession()
+                        self.game.save_manager.set_day(1)
+                        self.game.day = self.game.save_manager.get_day()
+                        self.game.day_config = self.game.difficulty_manager.get_day_config(self.game.day)
+
+                        self.game.session = DaySession(self.game.day, self.game.day_config)
                         self.game.change_scene(OfficeScene(self.game))
 
                     elif name == "Continue":
-                        pass
+                        from domain.day_session import DaySession
+                        from ui.scenes.office_scene import OfficeScene
+
+                        self.game.day = self.game.save_manager.get_day()
+                        self.game.day_config = self.game.difficulty_manager.get_day_config(self.game.day)
+
+                        self.game.session = DaySession(self.game.day, self.game.day_config)
+                        self.game.change_scene(OfficeScene(self.game))
 
                     elif name == "Settings":
                        pass
@@ -53,7 +64,7 @@ class MenuScene(SceneBase):
         pass
 
     def draw(self, screen):
-        screen.fill((10, 10, 10))
+        screen.fill(BG_COLOR)
 
         title = self.game.big_font.render("SDaGE", True, TEXT_COLOR)
         screen.blit(title, title.get_rect(center=(WIDTH // 7 - 30, HEIGHT // 3)))

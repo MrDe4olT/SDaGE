@@ -9,6 +9,8 @@ from ui.overlay import Overlay
 from ui.scenes.game_over_scene import GameOverScene
 from ui.scenes.menu_scene import MenuScene
 from ui.scenes.win_scene import WinScene
+from core.save_manager import SaveManager
+from core.difficulty_manager import DifficultyManager
 
 
 class Game:
@@ -32,6 +34,11 @@ class Game:
         self.state_manager.set_scene(MenuScene(self))
 
         self.overlay = Overlay()
+
+        self.save_manager = SaveManager()
+        self.difficulty_manager = DifficultyManager()
+        self.day = 1
+        self.day_config = None
 
     def change_scene(self, scene) -> None:
         self.state_manager.set_scene(scene)

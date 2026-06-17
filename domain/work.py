@@ -1,11 +1,8 @@
 import random
 
-from settings import TASK_FAIL_CHANCE
-
 
 class WorkTask:
-    def __init__(self, hold_time: float = 4.0, fail_chance: float = TASK_FAIL_CHANCE) -> None:
-        """Initialize a work task with progress and failure settings."""
+    def __init__(self, hold_time: float = 4.0, fail_chance: float = 0.1) -> None:
         self.hold_time = hold_time
         self.fail_chance = fail_chance
         self.progress = 0.0

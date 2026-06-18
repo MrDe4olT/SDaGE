@@ -68,6 +68,8 @@ class OfficeScene(SceneBase):
 
             if session.finished:
                 if session.result == "survived":
+                    self.game.day = self.game.save_manager.next_day()
+                    self.game.day = self.game.difficulty_manager.get_day_config(self.game.day)
                     from ui.scenes.win_scene import WinScene
 
                     self.game.change_scene(WinScene(self.game))

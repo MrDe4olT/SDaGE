@@ -38,7 +38,7 @@ class MenuScene(SceneBase):
                         from ui.scenes.office_scene import OfficeScene
 
                         self.game.save_manager.set_day(1)
-                        self.game.day = self.game.save_manager.get_day(1)
+                        self.game.day = self.game.save_manager.get_day()
                         self.game.day_config = self.game.difficulty_manager.get_day_config(self.game.day)
                         self.game.session = DaySession(self.game.day, self.game.day_config)
                         self.game.change_scene(OfficeScene(self.game))

@@ -11,6 +11,10 @@ from ui.scenes.menu_scene import MenuScene
 from ui.scenes.win_scene import WinScene
 from core.save_manager import SaveManager
 from core.difficulty_manager import DifficultyManager
+from ui.scenes.office_scene import OfficeScene
+from ui.scenes.work_monitor_scene import WorkMonitorScene
+from ui.scenes.report_monitor_scene import ReportMonitorScene
+from ui.scenes.relax_monitor_scene import RelaxMonitorScene
 
 
 class Game:
@@ -130,19 +134,27 @@ class Game:
             dt = self.clock.tick(FPS) / 1000.0
             events = pygame.event.get()
 
-            for event in events:
-                if event.type == pygame.QUIT:
-                    self.running = False
-
-            if not self.running:
-                break
-
             scene = self.state_manager.current_scene
             if scene is None:
                 continue
 
             for event in events:
+                if event.type == pygame.QUIT:
+                    self.running = False
+                    break
+
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    if isinstance(scene, (OfficeScene, WorkMonitorScene, ReportMonitorScene, RelaxMonitorScene)):
+                        self.state_manager.set_scene(MenuScene(self))
+                        continue
+
                 scene.handle_event(event)
+
+            if not self.running:
+                break
+            
+            if scene is None:
+                continue
 
             scene.update(dt)
             scene.draw(self.screen)

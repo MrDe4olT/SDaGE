@@ -36,6 +36,12 @@ class OfficeScene(SceneBase):
 
     def handle_event(self, event) -> None:
         """Handle monitor clicks and switch to the selected monitor scene."""
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_c and (event.mod & pygame.KMOD_LSHIFT):
+                self.game.session.finished = True
+                self.game.session.result = "survived"
+                return
+
         if event.type != pygame.MOUSEBUTTONDOWN or event.button != 1:
             return
 
@@ -58,6 +64,36 @@ class OfficeScene(SceneBase):
 
             self.game.change_scene(RelaxMonitorScene(self.game))
 
+    def get_hovered_monitor(self, mouse_pos) -> str | None:
+        """Return the monitor name currently hovered by the mouse."""
+        if self.point_in_polygon(mouse_pos, self.left_monitor_polygon):
+            return "left"
+
+        if self.center_monitor_rect.collidepoint(mouse_pos):
+            return "center"
+
+        if self.point_in_polygon(mouse_pos, self.right_monitor_polygon):
+            return "right"
+
+        return None
+
+    def point_in_polygon(self, point, polygon) -> bool:
+        """Return True if a point lies inside the given polygon."""
+        x, y = point
+        inside = False
+        count = len(polygon)
+
+        for i in range(count):
+            x1, y1 = polygon[i]
+            x2, y2 = polygon[(i + 1) % count]
+
+            if (y1 > y) != (y2 > y):
+                x_intersection = (x2 - x1) * (y - y1) / (y2 - y1) + x1
+                if x < x_intersection:
+                    inside = not inside
+
+        return inside
+    
     def update(self, dt: float) -> None:
         """Update the office overview and react to session end states."""
         session = self.game.session
@@ -69,7 +105,11 @@ class OfficeScene(SceneBase):
             if session.finished:
                 if session.result == "survived":
                     self.game.day = self.game.save_manager.next_day()
-                    self.game.day = self.game.difficulty_manager.get_day_config(self.game.day)
+                    self.game.day_config = self.game.difficulty_manager.get_day_config(self.game.day)
+                    print("New day:", self.game.day)
+                    
+                    if self.game.save_manager.is_game_completed():
+                        print("Game completed")
                     from ui.scenes.win_scene import WinScene
 
                     self.game.change_scene(WinScene(self.game))
@@ -111,33 +151,3 @@ class OfficeScene(SceneBase):
         clock_text = self.game.big_font.render(current_time, True, clock_color)
         clock_text_rect = clock_text.get_rect(center=clock_bg.center)
         screen.blit(clock_text, clock_text_rect)
-
-    def get_hovered_monitor(self, mouse_pos) -> str | None:
-        """Return the monitor name currently hovered by the mouse."""
-        if self.point_in_polygon(mouse_pos, self.left_monitor_polygon):
-            return "left"
-
-        if self.center_monitor_rect.collidepoint(mouse_pos):
-            return "center"
-
-        if self.point_in_polygon(mouse_pos, self.right_monitor_polygon):
-            return "right"
-
-        return None
-
-    def point_in_polygon(self, point, polygon) -> bool:
-        """Return True if a point lies inside the given polygon."""
-        x, y = point
-        inside = False
-        count = len(polygon)
-
-        for i in range(count):
-            x1, y1 = polygon[i]
-            x2, y2 = polygon[(i + 1) % count]
-
-            if (y1 > y) != (y2 > y):
-                x_intersection = (x2 - x1) * (y - y1) / (y2 - y1) + x1
-                if x < x_intersection:
-                    inside = not inside
-
-        return inside

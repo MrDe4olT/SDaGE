@@ -31,6 +31,9 @@ class AssetManager:
         self.images["work_error"] = self.load_image(os.path.join(images_dir, "Work_error.png"))
         self.images["work_in_progress"] = self.load_image(os.path.join(images_dir, "Work_in_progress.png"))
 
+        self.images["door_opened"] = self.load_image(os.path.join(images_dir, "Door_opened.png"))
+        self.images["door_closed"] = self.load_image(os.path.join(images_dir, "Door_closed.png"))
+
         font_path = os.path.join(fonts_dir, "minecraft.ttf")
         self.font_small = pygame.font.Font(font_path, 24)
         self.font_big = pygame.font.Font(font_path, 40)

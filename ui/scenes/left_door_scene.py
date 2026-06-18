@@ -11,16 +11,24 @@ class LeftDoorScene(SceneBase):
         self.door_opened_image = pygame.transform.rotate(self.game.assets.images["door_opened"], 180)
         self.door_closed_image = self.game.assets.images["door_closed"]
         self.exit_button_image = self.game.assets.images["exit_btn"]
+
         self.door_hold_rect = pygame.Rect(125, 0, 1177, 1080)
+        self.peek_rect = pygame.Rect(1300, 0, 507, 1080)
 
         door_button_width = self.exit_button_image.get_width()
         door_button_height = self.exit_button_image.get_height()
-        self.exit_button_image = pygame.transform.smoothscale(self.exit_button_image, (door_button_width, door_button_height))
-        self.exit_button_rect = self.exit_button_image.get_rect(midbottom = (960, 1080))
+        self.exit_button_image = pygame.transform.smoothscale(
+            self.exit_button_image,
+            (door_button_width, door_button_height),
+        )
+        self.exit_button_rect = self.exit_button_image.get_rect(midbottom=(960, 1080))
 
     def handle_event(self, event) -> None:
         """Handle scene events."""
-        pass
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if self.peek_rect.collidepoint(event.pos):
+                from ui.scenes.left_corridor_scene import LeftCorridorScene
+                self.game.change_scene(LeftCorridorScene(self.game))
 
     def update(self, dt: float) -> None:
         """Update left door state while the player is holding the mouse button."""
@@ -36,8 +44,9 @@ class LeftDoorScene(SceneBase):
             self.game.change_scene(OfficeScene(self.game))
             return
 
-        session.office.left_door_closed = (mouse_pressed and self.door_hold_rect.collidepoint(mouse_pos))
-
+        session.office.left_door_closed = (
+            mouse_pressed and self.door_hold_rect.collidepoint(mouse_pos)
+        )
         session.office.set_monitor("left_door")
         session.update(dt, False)
 
@@ -48,6 +57,7 @@ class LeftDoorScene(SceneBase):
         else:
             screen.blit(self.door_opened_image, (0, 0))
 
-        """pygame.draw.rect(screen, (255, 0, 0), self.door_hold_rect, 2)"""
+        # pygame.draw.rect(screen, (255, 0, 0), self.door_hold_rect, 2)
+        pygame.draw.rect(screen, (0, 255, 0), self.peek_rect, 2)
 
         screen.blit(self.exit_button_image, self.exit_button_rect.topleft)

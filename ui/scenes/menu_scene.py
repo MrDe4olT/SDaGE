@@ -43,6 +43,7 @@ class MenuScene(SceneBase):
                         self.game.session = DaySession(self.game.day, self.game.day_config)
                         self.game.change_scene(OfficeScene(self.game))
                         self.game.save_manager.set_has_save(True)
+                        self.game.save_manager.set_game_completed(False)
 
                     elif name == "Continue":
                         if not self.game.save_manager.has_save():

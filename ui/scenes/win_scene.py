@@ -33,7 +33,7 @@ class WinScene(SceneBase):
         screen.blit(title, title_rect)
 
         subtitle = self.game.font.render(
-            "The work day is over. Time to go home.",
+            "The day is over. You're a good worker.",
             True,
             TEXT_COLOR,
         )

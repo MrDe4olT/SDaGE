@@ -66,10 +66,15 @@ class RightDoorScene(SceneBase):
                 self.game.change_scene(GameOverScene(self.game, session.result))
 
     def draw(self, screen) -> None:
-        """Draw the right door and exit button."""
-        if self.game.session.office.right_door_closed:
+        """Draw the right door, warning alert, and exit button."""
+        office = self.game.session.office
+
+        if office.right_door_closed:
             screen.blit(self.door_closed_image, (0, 0))
         else:
             screen.blit(self.door_opened_image, (0, 0))
+
+        if office.should_show_right_door_alert():
+            pygame.draw.rect(screen, (255, 0, 0), pygame.Rect(1580, 120, 120, 120))
 
         screen.blit(self.exit_button_image, self.exit_button_rect.topleft)

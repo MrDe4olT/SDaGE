@@ -38,19 +38,21 @@ class MenuScene(SceneBase):
                         from ui.scenes.office_scene import OfficeScene
 
                         self.game.save_manager.set_day(1)
-                        self.game.day = self.game.save_manager.get_day()
+                        self.game.day = self.game.save_manager.get_day(1)
                         self.game.day_config = self.game.difficulty_manager.get_day_config(self.game.day)
-
                         self.game.session = DaySession(self.game.day, self.game.day_config)
                         self.game.change_scene(OfficeScene(self.game))
+                        self.game.save_manager.set_has_save(True)
 
                     elif name == "Continue":
+                        if not self.game.save_manager.has_save():
+                            return
+                        
                         from domain.day_session import DaySession
                         from ui.scenes.office_scene import OfficeScene
 
                         self.game.day = self.game.save_manager.get_day()
                         self.game.day_config = self.game.difficulty_manager.get_day_config(self.game.day)
-
                         self.game.session = DaySession(self.game.day, self.game.day_config)
                         self.game.change_scene(OfficeScene(self.game))
 
@@ -69,6 +71,8 @@ class MenuScene(SceneBase):
         title = self.game.big_font.render("SDaGE", True, TEXT_COLOR)
         screen.blit(title, title.get_rect(center=(WIDTH // 7 - 30, HEIGHT // 3)))
 
+        can_continue = self.game.save_manager.has_save()
+
         for i, rect in enumerate(self.rects):
             if i == self.selected:
                 bg = (210, 210, 210)
@@ -79,7 +83,7 @@ class MenuScene(SceneBase):
                 border = (90, 90, 90)
                 color = TEXT_COLOR
 
-            if self.buttons[i] == "Continue":
+            if self.buttons[i] == "Continue" and not can_continue:
                 bg = (45, 45, 45)
                 border = (70, 70, 70)
                 color = (120, 120, 120)

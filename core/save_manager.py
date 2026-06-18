@@ -7,6 +7,9 @@ class SaveManager:
         self.path = path
 
     def load(self):
+        if not os.path.exists(self.path):
+            return {"day": 1, "has_save": False}
+
         with open(self.path, "r", encoding="utf-8") as file:
             return json.load(file)
 
@@ -18,7 +21,9 @@ class SaveManager:
         return self.load().get("day", 1)
 
     def set_day(self, day):
-        self.save({"day": day})
+        data = self.load()
+        data["day"] = day
+        self.save(data)
 
     def next_day(self):
         day = self.get_day() + 1
@@ -26,4 +31,9 @@ class SaveManager:
         return day
 
     def has_save(self):
-        return os.path.exists(self.path)
+        return self.load().get("has_save", False)
+    
+    def set_has_save(self, value: bool):
+        data = self.load()
+        data["has_save"] = value
+        self.save(data)

@@ -21,20 +21,14 @@ class Game:
         pygame.display.set_caption(TITLE)
         self.clock = pygame.time.Clock()
         self.running = True
-
         self.session = None
-
         self.assets = AssetManager()
         self.assets.load_all()
-
         self.font = self.assets.font_small
         self.big_font = self.assets.font_big
-
         self.state_manager = GameStateManager()
         self.state_manager.set_scene(MenuScene(self))
-
         self.overlay = Overlay()
-
         self.save_manager = SaveManager()
         self.difficulty_manager = DifficultyManager()
         self.day = 1
@@ -49,12 +43,10 @@ class Game:
     def get_anxiety_ratio(self) -> float:
         if self.session is None:
             return 0.0
-
         anxiety_system = self.session.office.anxiety_system
 
         if anxiety_system.max_value <= 0:
             return 0.0
-
         ratio = anxiety_system.value / anxiety_system.max_value
 
         if ratio < 0.0:
@@ -67,14 +59,12 @@ class Game:
     def draw_global_vignette(self) -> None:
         if self.session is None:
             return
-
         anxiety_system = self.session.office.anxiety_system
         anxiety = anxiety_system.value
         anxiety_max = anxiety_system.max_value
 
         if anxiety_max <= 0:
             return
-
         start_vignette = 25
 
         ratio = (anxiety - start_vignette) / (anxiety_max - start_vignette)

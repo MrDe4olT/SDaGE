@@ -46,6 +46,8 @@ class AssetManager:
         self.images["boss_left_near"] = self.load_image(os.path.join(images_dir, "Boss_left_near.png"))
         self.images["boss_right_near"] = self.load_image(os.path.join(images_dir, "Boss_right_near.png"))
 
+        self.images["screamer"] = self.load_image(os.path.join(images_dir, "Screamer.png"))
+
         font_path = os.path.join(fonts_dir, "minecraft.ttf")
         self.font_small = pygame.font.Font(font_path, 24)
         self.font_big = pygame.font.Font(font_path, 40)

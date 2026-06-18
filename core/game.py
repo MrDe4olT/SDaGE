@@ -132,39 +132,61 @@ class Game:
             return False
 
         return True
+    
+    def should_draw_global_jumpscare(self) -> bool:
+        if self.session is None:
+            return False
+        return self.session.office.boss_jumpscare_active
+
+
+    def draw_global_jumpscare(self) -> None:
+        screamer = pygame.transform.scale(
+            self.assets.images["screamer"],
+            self.screen.get_size()
+        )
+        self.screen.blit(screamer, (0, 0))
 
     def run(self) -> None:
         while self.running:
             dt = self.clock.tick(FPS) / 1000.0
             events = pygame.event.get()
 
-            scene = self.state_manager.current_scene
-            if scene is None:
-                continue
-
             for event in events:
                 if event.type == pygame.QUIT:
                     self.running = False
                     break
 
+                current_scene = self.state_manager.current_scene
+                if current_scene is None:
+                    continue
+
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                    if isinstance(scene, (OfficeScene, WorkMonitorScene, ReportMonitorScene, RelaxMonitorScene, LeftDoorScene, RightDoorScene, LeftCorridorScene, RightCorridorScene)):
+                    if isinstance(current_scene, (OfficeScene, WorkMonitorScene, ReportMonitorScene, RelaxMonitorScene, LeftDoorScene, RightDoorScene, LeftCorridorScene, RightCorridorScene)):
                         self.state_manager.set_scene(MenuScene(self))
                         continue
 
-                scene.handle_event(event)
+                current_scene.handle_event(event)
 
             if not self.running:
                 break
-            
-            if scene is None:
+
+            current_scene = self.state_manager.current_scene
+            if current_scene is None:
                 continue
 
-            scene.update(dt)
-            scene.draw(self.screen)
+            current_scene.update(dt)
+
+            current_scene = self.state_manager.current_scene
+            if current_scene is None:
+                continue
+
+            current_scene.draw(self.screen)
 
             if self.should_draw_vignette():
                 self.draw_global_vignette()
+
+            if self.should_draw_global_jumpscare():
+                self.draw_global_jumpscare()
 
             pygame.display.flip()
 

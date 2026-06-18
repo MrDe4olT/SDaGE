@@ -16,6 +16,7 @@ class OfficeScene(SceneBase):
         self.chosen_center_image = self.game.assets.images["chosen_center"]
         self.chosen_right_image = self.game.assets.images["chosen_right"]
         self.exit_button_image = self.game.assets.images["exit_btn"]
+        self.screamer_image = self.game.assets.images["screamer"]
 
         self.center_monitor_rect = pygame.Rect(640, 243, 640, 400)
 
@@ -122,14 +123,20 @@ class OfficeScene(SceneBase):
 
                     if self.game.save_manager.is_game_completed():
                         print("Game completed")
-                    from ui.scenes.win_scene import WinScene
-
-                    self.game.change_scene(WinScene(self.game))
+                        from ui.scenes.win_scene import WinScene
+                        self.game.change_scene(WinScene(self.game))
+                    else:
+                        from ui.scenes.game_over_scene import GameOverScene
+                        self.game.change_scene(GameOverScene(self.game, session.result))
                 else:
                     from ui.scenes.game_over_scene import GameOverScene
-
                     self.game.change_scene(GameOverScene(self.game, session.result))
-                return
+
+            elif session.office.should_lose_from_boss():
+                from ui.scenes.game_over_scene import GameOverScene
+                self.game.change_scene(
+                    GameOverScene(self.game, session.office.boss_attack_result or "killed_by_boss")
+    )
 
         mouse_pos = pygame.mouse.get_pos()
         self.hovered_monitor = self.get_hovered_monitor(mouse_pos)
@@ -148,6 +155,10 @@ class OfficeScene(SceneBase):
 
     def draw(self, screen) -> None:
         """Draw the office background, monitor highlight, overlay, and clock."""
+        if self.game.session is not None and self.game.session.office.boss_jumpscare_active:
+            screen.blit(self.screamer_image, (0, 0))
+            return
+        
         screen.blit(self.office_image, (0, 0))
 
         if self.hovered_monitor == "left":

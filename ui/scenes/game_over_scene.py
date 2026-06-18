@@ -35,8 +35,10 @@ class GameOverScene(SceneBase):
 
         if self.reason == "anxiety":
             reason_label = "You're too excited."
+        elif self.reason == "killed_by_boss":
+            reason_label = "Boss caught you."
         else:
-            reason_label = f"{self.reason}"
+            reason_label = str(self.reason)
 
         reason_text = self.game.font.render(reason_label, True, TEXT_COLOR)
         reason_rect = reason_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 20))

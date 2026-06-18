@@ -132,12 +132,6 @@ class OfficeScene(SceneBase):
                     from ui.scenes.game_over_scene import GameOverScene
                     self.game.change_scene(GameOverScene(self.game, session.result))
 
-            elif session.office.should_lose_from_boss():
-                from ui.scenes.game_over_scene import GameOverScene
-                self.game.change_scene(
-                    GameOverScene(self.game, session.office.boss_attack_result or "killed_by_boss")
-    )
-
         mouse_pos = pygame.mouse.get_pos()
         self.hovered_monitor = self.get_hovered_monitor(mouse_pos)
 

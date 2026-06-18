@@ -136,8 +136,12 @@ class Game:
     def should_draw_global_jumpscare(self) -> bool:
         if self.session is None:
             return False
-        return self.session.office.boss_jumpscare_active
 
+        scene = self.state_manager.current_scene
+        if isinstance(scene, (MenuScene, GameOverScene, WinScene)):
+            return False
+
+        return self.session.office.boss_jumpscare_active
 
     def draw_global_jumpscare(self) -> None:
         screamer = pygame.transform.scale(
@@ -145,6 +149,12 @@ class Game:
             self.screen.get_size()
         )
         self.screen.blit(screamer, (0, 0))
+
+    def handle_event(self, event) -> None:
+        if self.menu_button.is_clicked(event):
+            from ui.scenes.menu_scene import MenuScene
+            self.game.session = None
+            self.game.change_scene(MenuScene(self.game))
 
     def run(self) -> None:
         while self.running:
@@ -175,6 +185,23 @@ class Game:
                 continue
 
             current_scene.update(dt)
+
+            if self.session is not None:
+                if self.session.office.should_lose_from_boss():
+                    self.session.finished = True
+                    self.session.result = self.session.office.boss_attack_result or "killed_by_boss"
+
+                if self.session.finished:
+                    if self.session.result == "survived":
+                        self.day = self.save_manager.next_day()
+                        self.day_config = self.difficulty_manager.get_day_config(self.day)
+
+                        if self.save_manager.is_game_completed():
+                            self.change_scene(WinScene(self))
+                        else:
+                            self.change_scene(GameOverScene(self, self.session.result))
+                    else:
+                        self.change_scene(GameOverScene(self, self.session.result))
 
             current_scene = self.state_manager.current_scene
             if current_scene is None:

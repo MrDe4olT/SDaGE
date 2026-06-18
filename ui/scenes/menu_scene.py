@@ -49,6 +49,9 @@ class MenuScene(SceneBase):
                         if not self.game.save_manager.has_save():
                             return
                         
+                        if self.game.save_manager.is_game_completed():
+                            return
+                        
                         from domain.day_session import DaySession
                         from ui.scenes.office_scene import OfficeScene
 
@@ -72,7 +75,8 @@ class MenuScene(SceneBase):
         title = self.game.big_font.render("SDaGE", True, TEXT_COLOR)
         screen.blit(title, title.get_rect(center=(WIDTH // 7 - 30, HEIGHT // 3)))
 
-        can_continue = self.game.save_manager.has_save()
+        have_save_to_continue = self.game.save_manager.has_save()
+        game_completed = self.game.save_manager.is_game_completed()
 
         for i, rect in enumerate(self.rects):
             if i == self.selected:
@@ -84,7 +88,7 @@ class MenuScene(SceneBase):
                 border = (90, 90, 90)
                 color = TEXT_COLOR
 
-            if self.buttons[i] == "Continue" and not can_continue:
+            if self.buttons[i] == "Continue" and (not have_save_to_continue or game_completed):
                 bg = (45, 45, 45)
                 border = (70, 70, 70)
                 color = (120, 120, 120)

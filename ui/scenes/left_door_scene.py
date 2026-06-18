@@ -50,14 +50,26 @@ class LeftDoorScene(SceneBase):
         session.office.set_monitor("left_door")
         session.update(dt, False)
 
+        if session.finished:
+            if session.result == "survived":
+                self.game.day = self.game.save_manager.next_day()
+                self.game.day_config = self.game.difficulty_manager.get_day_config(self.game.day)
+
+                if self.game.save_manager.is_game_completed():
+                    from ui.scenes.win_scene import WinScene
+                    self.game.change_scene(WinScene(self.game))
+                else:
+                    from ui.scenes.game_over_scene import GameOverScene
+                    self.game.change_scene(GameOverScene(self.game, session.result))
+            else:
+                from ui.scenes.game_over_scene import GameOverScene
+                self.game.change_scene(GameOverScene(self.game, session.result))
+
     def draw(self, screen) -> None:
         """Draw the left door and exit button."""
         if self.game.session.office.left_door_closed:
             screen.blit(self.door_closed_image, (0, 0))
         else:
             screen.blit(self.door_opened_image, (0, 0))
-
-        # pygame.draw.rect(screen, (255, 0, 0), self.door_hold_rect, 2)
-        # pygame.draw.rect(screen, (0, 255, 0), self.peek_rect, 2)
 
         screen.blit(self.exit_button_image, self.exit_button_rect.topleft)

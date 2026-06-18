@@ -13,7 +13,7 @@ class RightDoorScene(SceneBase):
         self.exit_button_image = self.game.assets.images["exit_btn"]
 
         self.door_hold_rect = pygame.Rect(617, 0, 1177, 1080)
-        self.peek_rect = pygame.Rect(115, 0, 505, 1080)
+        self.peek_rect = pygame.Rect(115, 0, 507, 1080)
 
         door_button_width = self.exit_button_image.get_width()
         door_button_height = self.exit_button_image.get_height()
@@ -50,14 +50,26 @@ class RightDoorScene(SceneBase):
         session.office.set_monitor("right_door")
         session.update(dt, False)
 
+        if session.finished:
+            if session.result == "survived":
+                self.game.day = self.game.save_manager.next_day()
+                self.game.day_config = self.game.difficulty_manager.get_day_config(self.game.day)
+
+                if self.game.save_manager.is_game_completed():
+                    from ui.scenes.win_scene import WinScene
+                    self.game.change_scene(WinScene(self.game))
+                else:
+                    from ui.scenes.game_over_scene import GameOverScene
+                    self.game.change_scene(GameOverScene(self.game, session.result))
+            else:
+                from ui.scenes.game_over_scene import GameOverScene
+                self.game.change_scene(GameOverScene(self.game, session.result))
+
     def draw(self, screen) -> None:
         """Draw the right door and exit button."""
         if self.game.session.office.right_door_closed:
             screen.blit(self.door_closed_image, (0, 0))
         else:
             screen.blit(self.door_opened_image, (0, 0))
-
-        # pygame.draw.rect(screen, (255, 0, 0), self.door_hold_rect, 2)
-        # pygame.draw.rect(screen, (0, 255, 0), self.peek_rect, 2)
 
         screen.blit(self.exit_button_image, self.exit_button_rect.topleft)

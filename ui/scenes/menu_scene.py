@@ -72,8 +72,23 @@ class MenuScene(SceneBase):
     def draw(self, screen):
         screen.fill(BG_COLOR)
 
-        title = self.game.big_font.render("SDaGE", True, TEXT_COLOR)
-        screen.blit(title, title.get_rect(center=(WIDTH // 7 - 30, HEIGHT // 3)))
+        title_lines = [
+            "Seven",
+            "Days",
+            "at",
+            "Gaijin",
+            "Entertainment"
+        ]
+
+        title_width = WIDTH // 7 - 100
+        title_height = HEIGHT // 4 - 125
+        title_gap = 65
+
+        for line in title_lines:
+            title_surface = self.game.big_font.render(line, True, TEXT_COLOR)
+            title_rect = title_surface.get_rect(topleft = (title_width, title_height))
+            screen.blit(title_surface, title_rect)
+            title_height += title_gap
 
         have_save_to_continue = self.game.save_manager.has_save()
         game_completed = self.game.save_manager.is_game_completed()

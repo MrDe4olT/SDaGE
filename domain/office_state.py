@@ -1,6 +1,5 @@
 import random
 
-
 from domain.anxiety import AnxietySystem
 from domain.report import ReportSystem
 from domain.work import WorkTask
@@ -17,7 +16,6 @@ class OfficeState:
     def __init__(self, day_config) -> None:
         """Initialize the full office gameplay state for one day."""
         self.selected_monitor = "center"
-
         self.day_config = day_config
 
         self.anxiety_system = AnxietySystem(
@@ -25,12 +23,13 @@ class OfficeState:
             self.day_config["ANXIETY_PASSIVE_GAIN_PER_SEC"],
             self.day_config["ANXIETY_RELIEF_PER_SEC"]
         )
+
         self.task = WorkTask(
             hold_time=self.generate_random_task_hold_time(),
             fail_chance=self.day_config["TASK_FAIL_CHANCE"],
         )
-        self.report_system = ReportSystem()
 
+        self.report_system = ReportSystem()
         self.day_time_minutes = DAY_START_HOUR * 60
         self.day_end_minutes = DAY_END_HOUR * 60
 
@@ -43,20 +42,31 @@ class OfficeState:
         self.left_door_closed = False
         self.right_door_closed = False
 
+        self.boss_side = None
+        self.boss_visible = False
+        self.boss_spawn_timer = self.generate_random_boss_spawn_time()
+
     def set_monitor(self, monitor: str) -> None:
         """Set the currently active monitor."""
         self.selected_monitor = monitor
 
     def update(self, dt: float, is_holding_work_button: bool) -> None:
-        """Update office time, anxiety, and the current work task."""
+        """Update office time, anxiety, the current work task, and simple boss state."""
         self.day_time_minutes += dt * DAY_SPEED_MINUTES_PER_SEC
 
         is_relaxing = self.selected_monitor == "right"
         self.anxiety_system.update(dt, is_relaxing)
+
         self.task.update(dt, is_holding_work_button)
 
         if self.task.is_failed and self.report_system.pending_reports <= 0:
             self.report_system.add_report()
+
+        if not self.boss_visible:
+            self.boss_spawn_timer -= dt
+            if self.boss_spawn_timer <= 0:
+                self.boss_visible = True
+                self.boss_side = random.choice(["left", "right"])
 
         if not self.overtime_active and self.day_time_minutes >= self.day_end_minutes:
             if not self.is_win_condition_met():
@@ -66,9 +76,19 @@ class OfficeState:
         if self.day_time_minutes > max_time:
             self.day_time_minutes = max_time
 
+    def hide_boss(self) -> None:
+        """Hide boss and start a new random spawn timer."""
+        self.boss_visible = False
+        self.boss_side = None
+        self.boss_spawn_timer = self.generate_random_boss_spawn_time()
+
     def generate_random_task_hold_time(self) -> float:
         """Return a random duration for the next work task."""
-        return random.uniform(3, 12) #change time on task needed
+        return random.uniform(3, 12)
+
+    def generate_random_boss_spawn_time(self) -> float:
+        """Return a random duration before boss appears again."""
+        return random.uniform(8, 16)
 
     def get_time_string(self) -> str:
         """Return the current in-game time as HH:MM."""

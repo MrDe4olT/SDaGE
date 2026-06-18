@@ -34,6 +34,18 @@ class AssetManager:
         self.images["door_opened"] = self.load_image(os.path.join(images_dir, "Door_opened.png"))
         self.images["door_closed"] = self.load_image(os.path.join(images_dir, "Door_closed.png"))
 
+        self.images["corridor_left"] = self.load_image(os.path.join(images_dir, "Corridor_left.png"))
+        self.images["corridor_right"] = self.load_image(os.path.join(images_dir, "Corridor_right.png"))
+
+        self.images["boss_left_far"] = self.load_image(os.path.join(images_dir, "Boss_left_far.png"))
+        self.images["boss_right_far"] = self.load_image(os.path.join(images_dir, "Boss_right_far.png"))
+
+        self.images["boss_left_mid"] = self.load_image(os.path.join(images_dir, "Boss_left_mid.png"))
+        self.images["boss_right_mid"] = self.load_image(os.path.join(images_dir, "Boss_right_mid.png"))
+
+        self.images["boss_left_near"] = self.load_image(os.path.join(images_dir, "Boss_left_near.png"))
+        self.images["boss_right_near"] = self.load_image(os.path.join(images_dir, "Boss_right_near.png"))
+
         font_path = os.path.join(fonts_dir, "minecraft.ttf")
         self.font_small = pygame.font.Font(font_path, 24)
         self.font_big = pygame.font.Font(font_path, 40)

@@ -8,7 +8,7 @@ class SaveManager:
 
     def load(self):
         if not os.path.exists(self.path):
-            return {"day": 1, "has_save": False, "game_complited": False}
+            return {"day": 1, "has_save": False, "game_completed": False}
 
         with open(self.path, "r", encoding="utf-8") as file:
             return json.load(file)
@@ -43,6 +43,10 @@ class SaveManager:
         return day
 
     def has_save(self):
+        data = self.load()
+        if data.get("day", 1) == 1:
+            return False
+        
         return self.load().get("has_save", False)
     
     def set_has_save(self, value: bool):

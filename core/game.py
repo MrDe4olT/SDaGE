@@ -17,6 +17,8 @@ from ui.scenes.report_monitor_scene import ReportMonitorScene
 from ui.scenes.relax_monitor_scene import RelaxMonitorScene
 from ui.scenes.left_door_scene import LeftDoorScene
 from ui.scenes.right_door_scene import RightDoorScene
+from ui.scenes.left_corridor_scene import LeftCorridorScene
+from ui.scenes.right_corridor_scene import RightCorridorScene
 
 
 class Game:
@@ -146,7 +148,7 @@ class Game:
                     break
 
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                    if isinstance(scene, (OfficeScene, WorkMonitorScene, ReportMonitorScene, RelaxMonitorScene, LeftDoorScene, RightDoorScene)):
+                    if isinstance(scene, (OfficeScene, WorkMonitorScene, ReportMonitorScene, RelaxMonitorScene, LeftDoorScene, RightDoorScene, LeftCorridorScene, RightCorridorScene)):
                         self.state_manager.set_scene(MenuScene(self))
                         continue
 

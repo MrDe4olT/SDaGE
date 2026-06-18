@@ -60,7 +60,7 @@ class MenuScene(SceneBase):
                         self.game.session = DaySession(self.game.day, self.game.day_config)
                         self.game.change_scene(OfficeScene(self.game))
 
-                    elif name == "Settings":
+                    elif name == "Settings": #TODO after adding audio
                        pass
 
                     elif name == "Quit":

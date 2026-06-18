@@ -15,6 +15,7 @@ class OfficeScene(SceneBase):
         self.chosen_left_image = self.game.assets.images["chosen_left"]
         self.chosen_center_image = self.game.assets.images["chosen_center"]
         self.chosen_right_image = self.game.assets.images["chosen_right"]
+        self.exit_button_image = self.game.assets.images["exit_btn"]
 
         self.center_monitor_rect = pygame.Rect(640, 243, 640, 400)
 
@@ -31,6 +32,17 @@ class OfficeScene(SceneBase):
             (1734, 833),
             (1300, 646),
         ]
+
+        door_button_width = self.exit_button_image.get_width() // 2
+        door_button_height = self.exit_button_image.get_height() // 2
+
+        self.exit_button_image = pygame.transform.smoothscale(self.exit_button_image, (door_button_width, door_button_height))
+
+        self.left_door_button_image = pygame.transform.rotate(self.exit_button_image, 270)
+        self.right_door_button_image = pygame.transform.rotate(self.exit_button_image, 90)
+
+        self.left_door_button_rect = self.left_door_button_image.get_rect(midleft = (0, 540))
+        self.right_door_button_rect = self.left_door_button_image.get_rect(midright = (1920, 540))
 
         self.hovered_monitor = None
 
@@ -93,7 +105,7 @@ class OfficeScene(SceneBase):
                     inside = not inside
 
         return inside
-    
+
     def update(self, dt: float) -> None:
         """Update the office overview and react to session end states."""
         session = self.game.session
@@ -107,7 +119,7 @@ class OfficeScene(SceneBase):
                     self.game.day = self.game.save_manager.next_day()
                     self.game.day_config = self.game.difficulty_manager.get_day_config(self.game.day)
                     print("New day:", self.game.day)
-                    
+
                     if self.game.save_manager.is_game_completed():
                         print("Game completed")
                     from ui.scenes.win_scene import WinScene
@@ -122,6 +134,18 @@ class OfficeScene(SceneBase):
         mouse_pos = pygame.mouse.get_pos()
         self.hovered_monitor = self.get_hovered_monitor(mouse_pos)
 
+        if self.left_door_button_rect.collidepoint(mouse_pos):
+            from ui.scenes.left_door_scene import LeftDoorScene
+
+            self.game.change_scene(LeftDoorScene(self.game))
+            return
+
+        if self.right_door_button_rect.collidepoint(mouse_pos):
+            from ui.scenes.right_door_scene import RightDoorScene
+
+            self.game.change_scene(RightDoorScene(self.game))
+            return
+
     def draw(self, screen) -> None:
         """Draw the office background, monitor highlight, overlay, and clock."""
         screen.blit(self.office_image, (0, 0))
@@ -132,6 +156,9 @@ class OfficeScene(SceneBase):
             screen.blit(self.chosen_center_image, (0, 0))
         elif self.hovered_monitor == "right":
             screen.blit(self.chosen_right_image, (0, 0))
+
+        screen.blit(self.left_door_button_image, self.left_door_button_rect.topleft)
+        screen.blit(self.right_door_button_image, self.right_door_button_rect.topleft)
 
         self.game.overlay.draw(screen, self.game.session)
 

@@ -40,6 +40,9 @@ class OfficeState:
         self.overtime_active = False
         self.overtime_end_minutes = (DAY_END_HOUR + 1) * 60
 
+        self.left_door_closed = False
+        self.right_door_closed = False
+
     def set_monitor(self, monitor: str) -> None:
         """Set the currently active monitor."""
         self.selected_monitor = monitor
@@ -65,7 +68,7 @@ class OfficeState:
 
     def generate_random_task_hold_time(self) -> float:
         """Return a random duration for the next work task."""
-        return random.uniform(5, 15)
+        return random.uniform(3, 12) #change time on task needed
 
     def get_time_string(self) -> str:
         """Return the current in-game time as HH:MM."""

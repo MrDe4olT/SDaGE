@@ -9,13 +9,15 @@ class LeftCorridorScene(SceneBase):
         super().__init__(game)
 
         self.corridor_image = self.game.assets.images["corridor_left"]
+        self.boss_far_image = self.game.assets.images["boss_left_far"]
+        self.boss_mid_image = self.game.assets.images["boss_left_mid"]
         self.exit_button_image = self.game.assets.images["exit_btn"]
 
         door_button_width = self.exit_button_image.get_width()
         door_button_height = self.exit_button_image.get_height()
         self.exit_button_image = pygame.transform.smoothscale(
             self.exit_button_image,
-            (door_button_width, door_button_height),
+            (door_button_width, door_button_height)
         )
         self.exit_button_image = pygame.transform.rotate(self.exit_button_image, 270)
         self.exit_button_rect = self.exit_button_image.get_rect(midleft=(560, 540))
@@ -56,6 +58,14 @@ class LeftCorridorScene(SceneBase):
                 self.game.change_scene(GameOverScene(self.game, session.result))
 
     def draw(self, screen) -> None:
-        """Draw the left corridor and exit button."""
+        """Draw the left corridor, boss if visible, and exit button."""
         screen.blit(self.corridor_image, (0, 0))
+
+        office = self.game.session.office
+        if office.boss_visible and office.boss_side == "left":
+            if office.boss_stage == "far":
+                screen.blit(self.boss_far_image, (0, 0))
+            elif office.boss_stage == "mid":
+                screen.blit(self.boss_mid_image, (0, 0))
+
         screen.blit(self.exit_button_image, self.exit_button_rect.topleft)

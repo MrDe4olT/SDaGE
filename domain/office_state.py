@@ -43,15 +43,17 @@ class OfficeState:
         self.right_door_closed = False
 
         self.boss_side = None
+        self.boss_stage = None
         self.boss_visible = False
         self.boss_spawn_timer = self.generate_random_boss_spawn_time()
+        self.boss_stage_timer = 0.0
 
     def set_monitor(self, monitor: str) -> None:
         """Set the currently active monitor."""
         self.selected_monitor = monitor
 
     def update(self, dt: float, is_holding_work_button: bool) -> None:
-        """Update office time, anxiety, the current work task, and simple boss state."""
+        """Update office time, anxiety, work task, and simple boss stages."""
         self.day_time_minutes += dt * DAY_SPEED_MINUTES_PER_SEC
 
         is_relaxing = self.selected_monitor == "right"
@@ -67,6 +69,13 @@ class OfficeState:
             if self.boss_spawn_timer <= 0:
                 self.boss_visible = True
                 self.boss_side = random.choice(["left", "right"])
+                self.boss_stage = "far"
+                self.boss_stage_timer = self.generate_random_boss_mid_time()
+        else:
+            if self.boss_stage == "far":
+                self.boss_stage_timer -= dt
+                if self.boss_stage_timer <= 0:
+                    self.boss_stage = "mid"
 
         if not self.overtime_active and self.day_time_minutes >= self.day_end_minutes:
             if not self.is_win_condition_met():
@@ -80,7 +89,9 @@ class OfficeState:
         """Hide boss and start a new random spawn timer."""
         self.boss_visible = False
         self.boss_side = None
+        self.boss_stage = None
         self.boss_spawn_timer = self.generate_random_boss_spawn_time()
+        self.boss_stage_timer = 0.0
 
     def generate_random_task_hold_time(self) -> float:
         """Return a random duration for the next work task."""
@@ -89,6 +100,10 @@ class OfficeState:
     def generate_random_boss_spawn_time(self) -> float:
         """Return a random duration before boss appears again."""
         return random.uniform(8, 16)
+
+    def generate_random_boss_mid_time(self) -> float:
+        """Return a random duration before boss moves from far to mid."""
+        return random.uniform(4, 7)
 
     def get_time_string(self) -> str:
         """Return the current in-game time as HH:MM."""

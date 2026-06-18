@@ -53,7 +53,7 @@ class OfficeState:
         self.selected_monitor = monitor
 
     def update(self, dt: float, is_holding_work_button: bool) -> None:
-        """Update office time, anxiety, work task, and simple boss stages."""
+        """Update office time, anxiety, work task, and boss stages."""
         self.day_time_minutes += dt * DAY_SPEED_MINUTES_PER_SEC
 
         is_relaxing = self.selected_monitor == "right"
@@ -72,10 +72,15 @@ class OfficeState:
                 self.boss_stage = "far"
                 self.boss_stage_timer = self.generate_random_boss_mid_time()
         else:
-            if self.boss_stage == "far":
-                self.boss_stage_timer -= dt
-                if self.boss_stage_timer <= 0:
-                    self.boss_stage = "mid"
+            self.boss_stage_timer -= dt
+
+            if self.boss_stage == "far" and self.boss_stage_timer <= 0:
+                self.boss_stage = "mid"
+                self.boss_stage_timer = self.generate_random_boss_near_time()
+
+            elif self.boss_stage == "mid" and self.boss_stage_timer <= 0:
+                self.boss_stage = "near"
+                self.boss_stage_timer = 999999.0
 
         if not self.overtime_active and self.day_time_minutes >= self.day_end_minutes:
             if not self.is_win_condition_met():
@@ -104,6 +109,10 @@ class OfficeState:
     def generate_random_boss_mid_time(self) -> float:
         """Return a random duration before boss moves from far to mid."""
         return random.uniform(4, 7)
+
+    def generate_random_boss_near_time(self) -> float:
+        """Return a random duration before boss moves from mid to near."""
+        return random.uniform(4, 6)
 
     def get_time_string(self) -> str:
         """Return the current in-game time as HH:MM."""

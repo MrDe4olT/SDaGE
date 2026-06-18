@@ -11,13 +11,14 @@ class RightCorridorScene(SceneBase):
         self.corridor_image = self.game.assets.images["corridor_right"]
         self.boss_far_image = self.game.assets.images["boss_right_far"]
         self.boss_mid_image = self.game.assets.images["boss_right_mid"]
+        self.boss_near_image = self.game.assets.images["boss_right_near"]
         self.exit_button_image = self.game.assets.images["exit_btn"]
 
         door_button_width = self.exit_button_image.get_width()
         door_button_height = self.exit_button_image.get_height()
         self.exit_button_image = pygame.transform.smoothscale(
             self.exit_button_image,
-            (door_button_width, door_button_height)
+            (door_button_width, door_button_height),
         )
         self.exit_button_image = pygame.transform.rotate(self.exit_button_image, 90)
         self.exit_button_rect = self.exit_button_image.get_rect(midright=(1360, 540))
@@ -67,5 +68,7 @@ class RightCorridorScene(SceneBase):
                 screen.blit(self.boss_far_image, (0, 0))
             elif office.boss_stage == "mid":
                 screen.blit(self.boss_mid_image, (0, 0))
+            elif office.boss_stage == "near":
+                screen.blit(self.boss_near_image, (0, 0))
 
         screen.blit(self.exit_button_image, self.exit_button_rect.topleft)

@@ -47,6 +47,7 @@ class OfficeState:
         self.boss_visible = False
         self.boss_spawn_timer = self.generate_random_boss_spawn_time()
         self.boss_stage_timer = 0.0
+        self.boss_seen_timer = 0.0
 
     def set_monitor(self, monitor: str) -> None:
         """Set the currently active monitor."""
@@ -71,16 +72,35 @@ class OfficeState:
                 self.boss_side = random.choice(["left", "right"])
                 self.boss_stage = "far"
                 self.boss_stage_timer = self.generate_random_boss_mid_time()
+                self.boss_seen_timer = 0.0
+                print(f"[BOSS] spawn side={self.boss_side}, stage={self.boss_stage}")
         else:
-            self.boss_stage_timer -= dt
+            if self.boss_stage == "far":
+                is_looking_at_boss = (
+                    (self.boss_side == "left" and self.selected_monitor == "left_corridor")
+                    or
+                    (self.boss_side == "right" and self.selected_monitor == "right_corridor")
+                )
 
-            if self.boss_stage == "far" and self.boss_stage_timer <= 0:
-                self.boss_stage = "mid"
-                self.boss_stage_timer = self.generate_random_boss_near_time()
+                if is_looking_at_boss:
+                    self.boss_seen_timer += dt
+                    if self.boss_seen_timer >= 1.0:
+                        print(f"[BOSS] hidden after watching, side={self.boss_side}")
+                        self.hide_boss()
+                else:
+                    self.boss_seen_timer = 0.0
+                    self.boss_stage_timer -= dt
+                    if self.boss_stage_timer <= 0:
+                        self.boss_stage = "mid"
+                        self.boss_stage_timer = self.generate_random_boss_near_time()
+                        print(f"[BOSS] side={self.boss_side}, stage={self.boss_stage}")
 
-            elif self.boss_stage == "mid" and self.boss_stage_timer <= 0:
-                self.boss_stage = "near"
-                self.boss_stage_timer = 999999.0
+            elif self.boss_stage == "mid":
+                self.boss_stage_timer -= dt
+                if self.boss_stage_timer <= 0:
+                    self.boss_stage = "near"
+                    self.boss_stage_timer = 999999.0
+                    print(f"[BOSS] side={self.boss_side}, stage={self.boss_stage}")
 
         if not self.overtime_active and self.day_time_minutes >= self.day_end_minutes:
             if not self.is_win_condition_met():
@@ -97,6 +117,7 @@ class OfficeState:
         self.boss_stage = None
         self.boss_spawn_timer = self.generate_random_boss_spawn_time()
         self.boss_stage_timer = 0.0
+        self.boss_seen_timer = 0.0
 
     def generate_random_task_hold_time(self) -> float:
         """Return a random duration for the next work task."""
@@ -108,7 +129,7 @@ class OfficeState:
 
     def generate_random_boss_mid_time(self) -> float:
         """Return a random duration before boss moves from far to mid."""
-        return random.uniform(4, 7)
+        return random.uniform(5, 8)
 
     def generate_random_boss_near_time(self) -> float:
         """Return a random duration before boss moves from mid to near."""

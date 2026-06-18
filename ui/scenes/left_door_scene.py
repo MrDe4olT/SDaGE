@@ -48,6 +48,6 @@ class LeftDoorScene(SceneBase):
         else:
             screen.blit(self.door_opened_image, (0, 0))
 
-        pygame.draw.rect(screen, (255, 0, 0), self.door_hold_rect, 2)
+        """pygame.draw.rect(screen, (255, 0, 0), self.door_hold_rect, 2)"""
 
         screen.blit(self.exit_button_image, self.exit_button_rect.topleft)
